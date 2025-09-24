@@ -253,10 +253,19 @@ document.addEventListener('DOMContentLoaded', function() {
     adjustLayout();
     window.addEventListener('resize', adjustLayout);
 
-    // 音频播放错误处理
-    backgroundMusic.addEventListener('error', function(e) {
-        console.log('音频加载错误:', e);
-    });
+    // 音频播放错误处理 - 为所有音频元素添加错误处理
+    function handleAudioError(audioElement, type) {
+        audioElement.addEventListener('error', function(e) {
+            console.log(`${type}音频加载错误:`, e);
+            // 音频加载失败不影响核心功能，仅在控制台记录错误
+            // 可以根据需要添加用户友好的提示
+        });
+    }
+
+    // 为所有音频元素应用错误处理
+    handleAudioError(backgroundMusic, '背景音乐');
+    handleAudioError(doorSound, '开门音效');
+    handleAudioError(paperSound, '纸张音效');
 
     // 防止页面滚动干扰体验
     document.body.style.overflow = 'hidden';
