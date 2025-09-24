@@ -39,7 +39,7 @@ body {
 }
 
 .letter-fly {
-    animation: letterFly 0.6s ease-out forwards;
+    animation: letterFly 0.6s ease-out forwards !important;
 }
 
 /* 情书展开动画 */
@@ -88,8 +88,8 @@ body {
 /* 页面响应式调整 */
 @media (max-width: 768px) {
     .mailbox-container {
-        height: 300px !important;
-        width: 225px !important;
+        height: 400px !important;
+        width: 360px !important; /* 按比例缩小 */
     }
     #love-letter {
         width: 4/5;
@@ -99,8 +99,8 @@ body {
 
 @media (max-width: 480px) {
     .mailbox-container {
-        height: 250px !important;
-        width: 187.5px !important;
+        height: 350px !important;
+        width: 315px !important; /* 按比例缩小 */
     }
     h1 {
         font-size: 1.8rem !important;
@@ -124,7 +124,7 @@ body {
 }
 
 .text-fade-in {
-    animation: textFadeIn 0.8s ease-out 1.2s forwards;
+    animation: textFadeIn 0.4s ease-out 0.3s forwards;
 }
 
 /* 黄铜配件发光效果 */

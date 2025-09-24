@@ -1,8 +1,7 @@
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', function() {
     // 获取DOM元素
-    const openButton = document.getElementById('open-button');
-    const resetButton = document.getElementById('reset-button');
+    const controlButton = document.getElementById('control-button');
     const mailboxDoor = document.getElementById('mailbox-door');
     const loveLetter = document.getElementById('love-letter');
     const loveMessage = document.getElementById('love-message');
@@ -15,14 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const loveQuotes = [
         { text: "永远都像初次见你那样，使我心荡漾", song: "《程艾影》" },
         { text: "我给你非正式的表白，但这是我最赤诚的爱", song: "《非正式主题曲》" },
-        { text: "相信有纯白，会越过山海，闯进你心怀，不辜负等待，勇敢的人，才没放开", song: "《相爱》" },
+        { text: "相信有纯白，会越过山海，<br>闯进你心怀，不辜负等待，<br>勇敢的人，才没放开", song: "《相爱》" },
         { text: "艾蜜莉，艾蜜莉，夕阳掉进我心里，我要带你去寻找，散落的星星", song: "《艾蜜莉》" },
-        { text: "有谁能比我知道，你的温柔像羽毛，秘密躺在我怀抱，只有你能听得到", song: "《你听得到》" },
-        { text: "教堂里举行着婚礼，我路过感到甜蜜，也让我想到我和你", song: "《海鸥》" },
+        { text: "有谁能比我知道，你的温柔像羽毛，<br>秘密躺在我怀抱，只有你能听得到", song: "《你听得到》" },
+        { text: "教堂里举行着婚礼，我路过感到甜蜜，<br>也让我想到我和你", song: "《海鸥》" },
         { text: "愿爱无忧", song: "《愿爱无忧》" },
-        { text: "五颜六色的花丛，没有一个特别喜欢的颜色，我爱天上的云朵，但我手脏不能将它触摸", song: "《朵》" },
+        { text: "五颜六色的花丛，没有一个特别喜欢的颜色，<br>我爱天上的云朵，但我手脏不能将它触摸", song: "《朵》" },
         { text: "你如此美丽，而且你可爱至极", song: "《灰姑娘》" },
-        { text: "脑袋都是你 心里都是你，小小的爱在大城里好甜蜜，念的都是你 全部都是你，小小的爱在大城里只为你倾心", song: "《大城小爱》" },
+        { text: "脑袋都是你 心里都是你，小小的爱在大城里好甜蜜，<br>念的都是你 全部都是你，小小的爱在大城里只为你倾心", song: "《大城小爱》" },
         { text: "我真得爱你，每人能比拟", song: "《唯一》" }
     ];
 
@@ -30,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let displayedQuotes = [];
     // 是否正在播放音乐
     let isPlaying = false;
+    // 信箱是否已打开
+    let mailboxOpen = false;
 
     // 初始化页面
     initPage();
@@ -45,19 +46,31 @@ document.addEventListener('DOMContentLoaded', function() {
         bgElements.forEach(el => el.classList.add('animate-bg'));
 
         // 添加按钮点击事件
-        openButton.addEventListener('click', openMailbox);
-        resetButton.addEventListener('click', resetMailbox);
+        controlButton.addEventListener('click', handleControlButtonClick);
         playButton.addEventListener('click', toggleMusic);
 
         // 设置音频音量
         backgroundMusic.volume = 0.5;
+        
+        // 初始化信纸状态 - 确保在信箱门下方且不可见
+        loveLetter.style.zIndex = '5'; // 设置为比信箱门低的z-index
+        loveLetter.style.opacity = '0'; // 初始透明度为0
+    }
+
+    // 处理控制按钮点击
+    function handleControlButtonClick() {
+        if (mailboxOpen) {
+            resetMailbox();
+        } else {
+            openMailbox();
+        }
     }
 
     // 打开信箱函数
     function openMailbox() {
         // 按钮按压动画
-        openButton.classList.add('button-press');
-        openButton.disabled = true;
+        controlButton.classList.add('button-press');
+        controlButton.disabled = true;
 
         // 短暂延迟后触发信箱开启动画
         setTimeout(() => {
@@ -85,17 +98,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('音效播放失败:', e);
                 }
 
-                // 情书飞出和展开动画
+                // 确保情书元素重置状态并设置初始位置
+                loveLetter.style.zIndex = '100'; // 打开时设置高z-index，确保显示在最上层
+                loveLetter.style.transform = 'translateX(-50%) translateY(0) scale(0.8)';
+                
+                // 先移除可能存在的动画类
+                loveLetter.classList.remove('letter-fly', 'letter-open');
+                
+                // 强制重排，确保动画能够重新触发
+                void loveLetter.offsetWidth;
+                
+                // 添加情书飞出和展开动画
                 loveLetter.classList.add('letter-fly', 'letter-open');
 
                 // 延迟后显示随机情话
                 setTimeout(() => {
                     showRandomQuote();
-                    // 显示重置按钮
-                    resetButton.style.opacity = '1';
-                    resetButton.style.pointerEvents = 'auto';
-                }, 1100); // 1.1秒后显示文字
-            }, 300); // 300毫秒后情书飞出
+                    // 更新按钮状态和文本
+                    mailboxOpen = true;
+                    controlButton.textContent = '重新开启';
+                    controlButton.disabled = false;
+                    controlButton.classList.remove('button-press');
+                }, 800); // 减少到0.8秒后显示文字
+            }, 150); // 减少到150毫秒后情书飞出
         }, 200); // 200毫秒按钮按压动画
     }
 
@@ -104,19 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // 隐藏情书
         loveLetter.classList.remove('letter-fly', 'letter-open');
         loveLetter.style.opacity = '0';
+        loveLetter.style.zIndex = '5'; // 重置为初始z-index，确保在信箱门下方
         loveMessage.innerHTML = '';
         loveMessage.classList.remove('text-fade-in');
 
         // 关闭信箱门
         mailboxDoor.classList.remove('mailbox-door-open');
 
-        // 隐藏重置按钮
-        resetButton.style.opacity = '0';
-        resetButton.style.pointerEvents = 'none';
-
-        // 重置按钮状态
-        openButton.disabled = false;
-        openButton.classList.remove('button-press');
+        // 更新按钮状态和文本
+        mailboxOpen = false;
+        controlButton.textContent = '打开信箱';
+        controlButton.disabled = false;
+        controlButton.classList.remove('button-press');
 
         // 停止音乐
         if (isPlaying) {
@@ -140,11 +164,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // 添加到已显示记录
         displayedQuotes.push(originalIndex);
 
-        // 显示情话内容
+        // 先移除动画类，确保下次能重新触发动画
+        loveMessage.classList.remove('text-fade-in');
+        
+        // 强制重排，确保动画能够重新触发
+        void loveMessage.offsetWidth;
+
+        // 先设置文字内容，但确保初始状态不可见
         loveMessage.innerHTML = `
             <p>${selectedQuote.text}</p>
             <p class="mt-2 text-sm opacity-80">——${selectedQuote.song}</p>
         `;
+        
+        // 确保文字初始状态为透明并位于下方位置
+        loveMessage.style.opacity = '0';
+        loveMessage.style.transform = 'translateY(20px)';
+        
+        // 强制重排，确保初始样式被应用
+        void loveMessage.offsetWidth;
+        
+        // 添加动画类，触发文字渐入效果
         loveMessage.classList.add('text-fade-in');
     }
 
@@ -154,21 +193,42 @@ document.addEventListener('DOMContentLoaded', function() {
             // 暂停音乐
             backgroundMusic.pause();
             playButton.innerHTML = '<i class="fa fa-music text-white text-xs"></i>';
+            isPlaying = false;
         } else {
             // 播放音乐
             try {
+                // 重置音乐到开始位置
                 backgroundMusic.currentTime = 0;
-                backgroundMusic.play().catch(e => {
-                    console.log('音乐播放失败:', e);
-                    // 显示提示
-                    alert('音乐播放需要您的许可，请稍后再试或刷新页面。');
-                });
-                playButton.innerHTML = '<i class="fa fa-pause text-white text-xs"></i>';
+                
+                // 使用Promise处理播放操作
+                const playPromise = backgroundMusic.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        // 播放成功，更新按钮状态
+                        playButton.innerHTML = '<i class="fa fa-pause text-white text-xs"></i>';
+                        isPlaying = true;
+                    }).catch(error => {
+                        console.log('音乐播放失败:', error);
+                        // 播放失败，恢复按钮状态
+                        playButton.innerHTML = '<i class="fa fa-music text-white text-xs"></i>';
+                        isPlaying = false;
+                        
+                        // 显示用户友好的提示
+                        if (error.name === 'AbortError') {
+                            console.log('播放请求被中断，可能是由于快速连续点击');
+                        } else if (error.name === 'NotAllowedError') {
+                            console.log('浏览器阻止了自动播放，需要用户交互');
+                            // 可以在这里添加一个提示，告诉用户需要点击页面来启用音频
+                        }
+                    });
+                }
             } catch (e) {
                 console.log('音乐播放失败:', e);
+                playButton.innerHTML = '<i class="fa fa-music text-white text-xs"></i>';
+                isPlaying = false;
             }
         }
-        isPlaying = !isPlaying;
     }
 
     // 创建粒子效果函数
@@ -222,17 +282,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const clickEvent = touchSupported ? 'touchstart' : 'click';
 
     // 重新绑定按钮事件以支持触摸
-    openButton.removeEventListener('click', openMailbox);
-    resetButton.removeEventListener('click', resetMailbox);
+    controlButton.removeEventListener('click', handleControlButtonClick);
     playButton.removeEventListener('click', toggleMusic);
 
-    openButton.addEventListener(clickEvent, openMailbox);
-    resetButton.addEventListener(clickEvent, resetMailbox);
+    controlButton.addEventListener(clickEvent, handleControlButtonClick);
     playButton.addEventListener(clickEvent, toggleMusic);
 
     // 禁止按钮的默认触摸行为
-    openButton.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
-    resetButton.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
+    controlButton.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
     playButton.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
 
     // 确保情书内容区域在不同屏幕尺寸下都能正确显示
@@ -241,11 +298,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const mailboxContainer = document.querySelector('.mailbox-container');
         
         if (viewportWidth < 768) {
-            mailboxContainer.style.height = '300px';
-            mailboxContainer.style.width = '225px';
-        } else {
             mailboxContainer.style.height = '400px';
-            mailboxContainer.style.width = '300px';
+            mailboxContainer.style.width = '360px'; // 按比例缩小
+        } else if (viewportWidth < 480) {
+            mailboxContainer.style.height = '350px';
+            mailboxContainer.style.width = '315px'; // 按比例缩小
+        } else {
+            mailboxContainer.style.height = '500px';
+            mailboxContainer.style.width = '450px'; // 更新为新的宽度
         }
     }
 
